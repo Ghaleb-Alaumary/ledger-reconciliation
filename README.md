@@ -1,29 +1,28 @@
-# ledger-reconciliation
-Automated ledger reconciliation tools for financial institutions and payment processors
+Quick Start
 
-# Ledger Reconciliation Suite
+from ledger_recon import ReconciliationEngine, DataLoader
 
-Enterprise-grade reconciliation tools for matching internal accounting ledgers with external bank statements, payment gateway reports, and cryptocurrency transaction logs.
+# Load data sources
+loader = DataLoader()
+ledger = loader.load_csv('internal_ledger_sep2021.csv')
+bank_stmt = loader.load_mt940('bank_statement_sep2021.mt940')
 
-## Features
+# Configure reconciliation rules
+engine = ReconciliationEngine()
+engine.configure({
+    'amount_tolerance': 0.01,
+    'date_tolerance_days': 2,
+    'match_on_reference': True,
+    'fuzzy_match_threshold': 0.85
+})
 
-- **Multi-Format Import**: CSV, Excel, MT940, CAMT.053, PDF statements
-- **Intelligent Matching**: Fuzzy matching on amounts, dates, and references
-- **Exception Management**: Flag and categorize reconciliation breaks
-- **Audit Trail**: Complete history of all reconciliation activities
-- **Reporting**: Customizable reconciliation reports and dashboards
+# Run reconciliation
+results = engine.reconcile(ledger, bank_stmt)
 
-## Supported Data Sources
+print(f"Matched: {results.matched_count}")
+print(f"Ledger Only: {results.ledger_only_count}")
+print(f"Bank Only: {results.bank_only_count}")
+print(f"Partial Matches: {results.partial_match_count}")
 
-| Source Type | Format | Example |
-|-------------|--------|---------|
-| Bank Statements | MT940, CAMT.053, CSV | SWIFT messages |
-| Payment Gateways | CSV, JSON | Stripe, PayPal, Alipay |
-| Crypto Exchanges | CSV, API | Binance, Coinbase |
-| Internal Ledgers | Excel, CSV, SQL | QuickBooks, SAP |
-| Card Processors | CSV, XML | Visa, Mastercard |
-
-## Installation
-
-```bash
-pip install ledger-reconciliation
+# Export results
+results.export_excel('reconciliation_report_sep2021.xlsx')
